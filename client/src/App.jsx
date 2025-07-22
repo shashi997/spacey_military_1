@@ -1,9 +1,21 @@
-function App() {
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom"
+import HomePage from "./pages/HomePage"
+import SignupPage from "./pages/SignupPage"
+import LoginPage from "./pages/LoginPage"
 
+function App() {
   return (
-    <>
-      <h1 className="text-3xl font-bold underline">Spacey</h1>
-    </>
+    <div className="App">
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage/>}/>
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/login" element={<LoginPage />} />
+
+          <Route path="*" element={<h1> PAGE NOT FOUND</h1>}/>
+        </Routes>
+      </Router>
+    </div>
   )
 }
 

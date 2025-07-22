@@ -1,1 +1,10 @@
+@font-face {
+    font-family: Oswald;
+    src: url('./assets/fonts/Oswald-Bold.ttf')
+}
+
 @import "tailwindcss";
+
+@theme {
+    --font-oswald: Oswald, sans-serif;
+}
