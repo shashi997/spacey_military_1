@@ -24,7 +24,7 @@ const Avatar = (props) => {
       ref={group}
       object={scene}
       scale={2.2} // Made the model larger to fill its new space
-      position-y={-2.2} // Adjusted vertical position to be centered
+      position-y={-2.3} // Adjusted vertical position to be centered
       rotation-y={-0.2} // Slightly rotate the model to face the text
       {...props}
     />
