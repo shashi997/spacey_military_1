@@ -8,6 +8,7 @@ import { getAllLessonsWithAccess } from '../../utils/lessonProgression';
 import { useAuth } from '../../hooks/useAuth';
 
 // Import your lesson images
+import spaceWarfareImg from '../../assets/space_warfare.jpg'
 import satelliteImg from '../../assets/satellite.jpg';
 import spaghettificationImg from '../../assets/boliviainteligente-MO6wb4hdhZo-unsplash.jpg';
 import space_explorationImg from '../../assets/space.jpg';
@@ -16,7 +17,7 @@ import ZeroGravityImg from '../../assets/zerogravity.jpg';
 
 // Image mapping for lessons
 const lessonImages = {
-  'mars_energy': MarsRoverImg,
+  'space_warfare_briefing': spaceWarfareImg,
   'build-satellite': satelliteImg,
   'spaghettification': spaghettificationImg,
   'space-exploration-news': space_explorationImg,

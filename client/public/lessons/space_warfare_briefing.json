@@ -1,0 +1,141 @@
+{
+    "mission_id": "space_warfare_briefing",
+    "title": "Space Warfare Briefing: Coalition SatOps",
+    "total_blocks": 9,
+    "blocks": [
+        {
+            "block_id": "Briefing_Intro",
+            "type": "narration",
+            "content": "Commander, welcome to your first briefing.",
+            "media": {
+                "image": "/images/space_briefing_room.jpg",
+                "audio": "/audio/briefing_start.mp3"
+            },
+            "learning_goal": "Set the stage for the space warfare briefing and introduce Spacey's role.",
+            "llm_instruction": "As Spacey, welcome the Commander to the briefing. Set a serious, informative tone. Introduce the briefing pack concept.",
+            "next_block": "WhySpaceIsWar"
+        },
+        {
+            "block_id": "WhySpaceIsWar",
+            "type": "narration",
+            "content": "Space isn't just exploration - it's infrastructure, intelligence, and influence. LEO, MEO, GEO roles are critical. Space makes our forces faster, sharper, smarter. That's why it's a force multiplier - and a warfighting domain.",
+            "media": {
+                "image": "/images/rotating_globe_overlay.gif"
+            },
+            "learning_goal": "Explain why space is a critical theatre of war, covering LEO/MEO/GEO roles and the 'force-multiplier' concept.",
+            "llm_instruction": "As Spacey, explain the strategic importance of space. Detail the roles of LEO, MEO, and GEO orbits, and elaborate on the 'force-multiplier' concept. Keep it concise and impactful.",
+            "next_block": "AlliedDoctrineSnapshot"
+        },
+        {
+            "block_id": "AlliedDoctrineSnapshot",
+            "type": "narration",
+            "content": "You're not alone in orbit. UK Space Command focuses on protection, power projection, and innovation. US Space Force? They've got Deltas. Delta 5 watches space like a hawk. NATO says: strike a satellite, and you may trigger Article 5. The rules are changing, Commander. Better stay ahead.",
+            "media": {
+                "image": "/images/doctrine_logos.png"
+            },
+            "learning_goal": "Introduce key allied space doctrines (UK, USSF, NATO) and the concept of collective defense in space.",
+            "llm_instruction": "As Spacey, brief the Commander on key allied space doctrines. Mention UK Space Command, US Space Force Delta 5, and NATO's Article 5 implications regarding satellite attacks. Emphasize the evolving rules of engagement.",
+            "next_block": "OrbitalMechanics"
+        },
+        {
+            "block_id": "OrbitalMechanics",
+            "type": "narration",
+            "content": "Let's get you fluent in orbital movement. Inclination = where your satellite flies on Earth. RAAN = where its orbit crosses the equator. Now-P-c: Collision probability. Too high? You dodge or die. Welcome to orbital chess.",
+            "media": {
+                "image": "/images/orbit_mechanic.gif"
+            },
+            "learning_goal": "Teach fundamental orbital mechanics concepts: Inclination, RAAN, and Collision Probability (P-c).",
+            "llm_instruction": "As Spacey, explain Inclination, RAAN, and Collision Probability (P-c) in simple terms. Use the analogy of 'orbital chess' to convey the strategic complexity. Keep it under 90 seconds.",
+            "next_block": "LegalEthicalFramework"
+        },
+        {
+            "block_id": "LegalEthicalFramework",
+            "type": "narration",
+            "content": "There are rules, even up here. Outer Space Treaty: No weapons of mass destruction. Artemis Accords: Transparency and peaceful intent. Liability Convention: Break a satellite, pay for the mess. But rules bend fast when nations clash. That's where you come in.",
+            "media": {
+                "image": "/images/treaty_timeline.jpeg"
+            },
+            "learning_goal": "Outline the key international legal and ethical frameworks governing space (OST, Artemis Accords, Liability Convention).",
+            "llm_instruction": "As Spacey, summarize the core tenets of the Outer Space Treaty, Artemis Accords, and the Liability Convention. Emphasize the tension between these rules and real-world conflicts.",
+            "next_block": "ThreatCatalogue"
+        },
+        {
+            "block_id": "ThreatCatalogue",
+            "type": "narration",
+            "content": "Let's talk threats. Kinetic ASATs - missiles that shatter satellites. Directed-energy - fry circuits without touching. Co-orbital - satellites with claws or thrusters to 'bump' targets. Cyber & GPS spoofing - silent and deadly. Space is hostile. And it's only getting hotter.",
+            "media": {
+                "image": "/images/threat_icon_grid.jpg"
+            },
+            "learning_goal": "Identify and describe various space threats: Kinetic ASATs, Directed-Energy, Co-orbital, Cyber, and GPS Spoofing.",
+            "llm_instruction": "As Spacey, detail the different types of threats in space warfare. Explain Kinetic ASATs, Directed-energy weapons, Co-orbital threats, and Cyber/GPS spoofing. Use vivid language to convey the danger.",
+            "next_block": "ROEDecisionLadder"
+        },
+        {
+            "block_id": "ROEDecisionLadder",
+            "type": "narration",
+            "content": "Engagement isn't always fire-and-forget. Your chain of response: Diplomatic pressure → Economic sanctions → Cyber countermeasures → Kinetic strike. Escalation must be smart, not emotional. This ladder? You'll climb it... carefully.",
+            "media": {
+                "image": "/images/roe_flowchart.png"
+            },
+            "learning_goal": "Introduce the Rules of Engagement (ROE) decision ladder for space, covering diplomatic, economic, cyber, and kinetic responses.",
+            "llm_instruction": "As Spacey, explain the ROE decision ladder for space. Describe each level of response from diplomatic to kinetic strike. Emphasize the importance of smart, non-emotional escalation.",
+            "next_block": "CaseStudyIridiumCosmos"
+        },
+        {
+            "block_id": "CaseStudyIridiumCosmos",
+            "type": "narration",
+            "content": "In 2009, we had a wake-up call. A defunct Russian satellite slammed into a live Iridium bird. The result? A debris cloud with over 1,500 trackable fragments, some still dangerous today. This wasn't an attack. Just negligence. Imagine if it were deliberate.",
+            "media": {
+                "image": "/images/debris_cloud_map.jpg"
+            },
+            "learning_goal": "Analyze the Iridium-Cosmos 2009 collision as a case study for space debris and the consequences of orbital events.",
+            "llm_instruction": "As Spacey, recount the Iridium-Cosmos 2009 collision. Explain what happened, the resulting debris, and its long-term implications. Pose a rhetorical question about the severity if it were deliberate.",
+            "next_block": "MissionPreview"
+        },
+        {
+            "block_id": "MissionPreview",
+            "type": "choice",
+            "content": "Ready to apply what you've learned? You'll now take command of Coalition SatOps. Scenario: A Chinese platform has manoeuvred close to an allied ISR satellite. You'll advise leadership on responses: warn, jam, manoeuvre... or escalate. Choose wisely, Commander.",
+            "media": {
+                "image": "/images/space_command_mockup.png"
+            },
+            "choices": [
+                {
+                    "text": "Send Warning",
+                    "next_block": "Briefing_End",
+                    "tag": "diplomatic",
+                    "ai_reaction": "Player chose a diplomatic first step."
+                },
+                {
+                    "text": "Co-Orbit (Manoeuvre)",
+                    "next_block": "Briefing_End",
+                    "tag": "active",
+                    "ai_reaction": "Player chose a direct, physical response."
+                },
+                {
+                    "text": "Jam Communications",
+                    "next_block": "Briefing_End",
+                    "tag": "aggressive",
+                    "ai_reaction": "Player chose an electronic countermeasure."
+                },
+                {
+                    "text": "Escalate to Leadership",
+                    "next_block": "Briefing_End",
+                    "tag": "collaborative",
+                    "ai_reaction": "Player chose to involve higher authority."
+                }
+            ],
+            "learning_goal": "Prepare the student for the next mission by presenting a realistic scenario and potential response options, emphasizing strategic decision-making.",
+            "llm_instruction": "As Spacey, set up the next mission scenario. Clearly outline the orbital traffic crisis and the student's role as Coalition SatOps Commander. Present the initial choices for advising leadership, emphasizing the need for wise decisions.",
+            "next_block": null
+        },
+        {
+            "block_id": "Briefing_End",
+            "type": "narration",
+            "content": "Briefing concluded. Your initial decision has been noted. Prepare for the full mission.",
+            "learning_goal": "Conclude the briefing and transition to the next stage of the learning journey.",
+            "llm_instruction": "As Spacey, provide a brief concluding remark for the briefing, acknowledging the student's first decision in the preview scenario and signaling readiness for the next full mission.",
+            "next_block": null
+        }
+    ]
+}

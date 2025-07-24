@@ -5,7 +5,7 @@ import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firesto
 
 // Define the order in which lessons should be completed
 export const LESSON_ORDER = [
-  'mars_energy',
+  'space_warfare_briefing',
   'build-satellite', 
   'spaghettification',
   'space-exploration-news',
@@ -14,10 +14,10 @@ export const LESSON_ORDER = [
 
 // Lesson metadata for display purposes
 export const LESSON_METADATA = {
-  'mars_energy': {
-    id: 'mars_energy',
-    title: 'Mars Energy Dilemma',
-    description: 'Manage a critical energy crisis on Mars Base Ares-X',
+  'space_warfare_briefing': {
+    id: 'space_warfare_briefing',
+    title: 'Space Warfare Briefing: Coalition SatOps',
+    description: 'Space warfare briefing: threats, rules, and strategy',
     difficulty: 'Beginner',
     estimatedTime: '15-18 min',
     unlockRequirement: null // First lesson, always unlocked
