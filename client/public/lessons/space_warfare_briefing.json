@@ -19,11 +19,12 @@
             "block_id": "WhySpaceIsWar",
             "type": "narration",
             "content": "Space isn't just exploration - it's infrastructure, intelligence, and influence. LEO, MEO, GEO roles are critical. Space makes our forces faster, sharper, smarter. That's why it's a force multiplier - and a warfighting domain.",
-            "media": {
-                "image": "/images/rotating_globe_overlay.gif"
-            },
-            "learning_goal": "Explain why space is a critical theatre of war, covering LEO/MEO/GEO roles and the 'force-multiplier' concept.",
-            "llm_instruction": "As Spacey, explain the strategic importance of space. Detail the roles of LEO, MEO, and GEO orbits, and elaborate on the 'force-multiplier' concept. Keep it concise and impactful.",
+            "next_block": "InteractiveGlobeDemo"
+        },
+        {
+            "block_id": "InteractiveGlobeDemo",
+            "type": "interactive_demo",
+            "demo_component": "InteractiveGlobeDemo", 
             "next_block": "AlliedDoctrineSnapshot"
         },
         {
