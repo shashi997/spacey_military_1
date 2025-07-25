@@ -19,6 +19,9 @@ import AiFeedback from '../components/lesson/AiFeedback';
 import LogPanel from '../components/lesson/LogPanel';
 import MediaDisplay from '../components/lesson/MediaDisplay';
 import LessonProgressIndicator from '../components/lesson/LessonProgressIndicator'; // Import LessonProgressIndicator
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import InteractiveGlobeDemo from '../components/interactive/InteractiveGlobeDemo';
 // Remove ChatPanel import since we're using integrated chat
 // import ChatPanel from '../components/chat/ChatPanel';
 
@@ -519,6 +522,26 @@ Format your response to include both immediate feedback and any trait analysis.`
             return <ReflectionBlock block={augmentedBlock} onNavigate={handleNavigate} getDynamicText={getDynamicText} />;
           case 'quiz':
             return <QuizBlock block={augmentedBlock} onComplete={() => handleNavigate(augmentedBlock.next_block)} />;
+          // --- NEW: CASE TO RENDER INTERACTIVE DEMOS ---
+          case 'interactive_demo':
+            switch (augmentedBlock.demo_component) {
+              case 'InteractiveGlobeDemo': 
+                return (
+                  <DndProvider backend={HTML5Backend}>
+                    <InteractiveGlobeDemo />
+                    <div className="text-center mt-6">
+                      <button
+                        onClick={() => handleNavigate(augmentedBlock.next_block)}
+                        className="px-6 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700"
+                      >
+                        Continue
+                      </button>
+                    </div>
+                  </DndProvider>
+                );
+              default:
+                return <p>Unknown interactive demo: {augmentedBlock.demo_component}</p>;
+            }
           default:
             return <p>Unsupported block type: {currentBlock.type}</p>;
         }
@@ -740,7 +763,7 @@ Respond as if you're right there with the user during their mission.`;
         userTags={userTags}
       />
 
-      <main className="relative z-10 min-h-screen pt-20 pb-24 px-4 md:px-8">
+     <main className="relative z-10 min-h-screen pt-20 pb-24 px-4 md:px-8">
         
         {/* Header Section with Back Button and Title */}
         <div className="w-full max-w-7xl mx-auto mb-8">
@@ -766,11 +789,10 @@ Respond as if you're right there with the user during their mission.`;
         </div>
 
         {/* Main Content Area - using full width */}
-        <div className="w-full max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 min-h-[500px]">
-            
+          <div className="w-full max-w-screen-2xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 lg:gap-8 min-h-[500px]">               
             {/* Left Column: AI Avatar in Tutor Mode */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-2">
               <div className="relative w-full h-80 lg:h-[500px]">
                 <AIAvatar
                   webcamRef={webcamRef}
@@ -785,12 +807,12 @@ Respond as if you're right there with the user during their mission.`;
           </div>
 
             {/* Center Column: Lesson Content - taking more space */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-6">
             {renderLessonContent()}
           </div>
 
             {/* Right Column: Mission Monitor with Chat & Voice */}
-            <div className="lg:col-span-1 space-y-4">
+            <div className="lg:col-span-2 space-y-4">
               {hasAccess && !isLoading && !accessLoading && (
                 <>
                   <div className="w-full">
