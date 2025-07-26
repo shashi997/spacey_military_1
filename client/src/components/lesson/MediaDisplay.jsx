@@ -16,7 +16,16 @@ const MediaDisplay = ({ media, initialIndex = 0, onMediaChange }) => { // Added 
     if (!media) return [];
     const mediaArray = [];
     if (media['3d_model']) mediaArray.push({ type: '3d', src: media['3d_model'] });
-    if (media.image) mediaArray.push({ type: 'image', src: media.image });
+
+    // Handle multiple images
+    if (media.images && Array.isArray(media.images)) {
+      media.images.forEach(image => {
+        mediaArray.push({ type: 'image', src: image });
+      });
+    } else if (media.image) {  // Fallback for single image
+      mediaArray.push({ type: 'image', src: media.image });
+    }
+
     if (media.video) mediaArray.push({ type: 'video', src: media.video });
     if (media.audio) mediaArray.push({ type: 'audio', src: media.audio });
     return mediaArray;

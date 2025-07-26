@@ -1,7 +1,7 @@
 {
     "mission_id": "space_warfare_briefing",
     "title": "Space Warfare Briefing: Coalition SatOps",
-    "total_blocks": 9,
+    "total_blocks": 11,
     "blocks": [
         {
             "block_id": "Briefing_Intro",
@@ -19,6 +19,11 @@
             "block_id": "WhySpaceIsWar",
             "type": "narration",
             "content": "Space isn't just exploration - it's infrastructure, intelligence, and influence. LEO, MEO, GEO roles are critical. Space makes our forces faster, sharper, smarter. That's why it's a force multiplier - and a warfighting domain.",
+            "media": {
+                "image": "/images/rotating_globe_overlay.gif"
+            },
+            "learning_goal": "Explain why space is a critical theatre of war, covering LEO/MEO/GEO roles and the 'force-multiplier' concept.",
+            "llm_instruction": "As Spacey, explain the strategic importance of space. Detail the roles of LEO, MEO, and GEO orbits, and elaborate on the 'force-multiplier' concept. Keep it concise and impactful.",
             "next_block": "InteractiveGlobeDemo"
         },
         {
@@ -87,7 +92,11 @@
             "type": "narration",
             "content": "In 2009, we had a wake-up call. A defunct Russian satellite slammed into a live Iridium bird. The result? A debris cloud with over 1,500 trackable fragments, some still dangerous today. This wasn't an attack. Just negligence. Imagine if it were deliberate.",
             "media": {
-                "image": "/images/debris_cloud_map.jpg"
+                "images": [
+                    "/images/Collision_iridium33_kosmos2251.jpg",
+                    "/images/Iridium-Cosmos-collision.gif",
+                    "/images/debris_cloud_map.jpg"
+                ]
             },
             "learning_goal": "Analyze the Iridium-Cosmos 2009 collision as a case study for space debris and the consequences of orbital events.",
             "llm_instruction": "As Spacey, recount the Iridium-Cosmos 2009 collision. Explain what happened, the resulting debris, and its long-term implications. Pose a rhetorical question about the severity if it were deliberate.",
@@ -98,7 +107,7 @@
             "type": "choice",
             "content": "Ready to apply what you've learned? You'll now take command of Coalition SatOps. Scenario: A Chinese platform has manoeuvred close to an allied ISR satellite. You'll advise leadership on responses: warn, jam, manoeuvre... or escalate. Choose wisely, Commander.",
             "media": {
-                "image": "/images/space_command_mockup.png"
+                "image": "/images/space_satellite.jpg"
             },
             "choices": [
                 {
