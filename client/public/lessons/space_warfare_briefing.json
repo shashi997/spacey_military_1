@@ -108,11 +108,14 @@
             "block_id": "ROEDecisionLadder",
             "type": "narration",
             "content": "Engagement isn't always fire-and-forget. Your chain of response: Diplomatic pressure → Economic sanctions → Cyber countermeasures → Kinetic strike. Escalation must be smart, not emotional. This ladder? You'll climb it... carefully.",
-            "media": {
-                "image": "/images/roe_flowchart.png"
-            },
             "learning_goal": "Introduce the Rules of Engagement (ROE) decision ladder for space, covering diplomatic, economic, cyber, and kinetic responses.",
             "llm_instruction": "As Spacey, explain the ROE decision ladder for space. Describe each level of response from diplomatic to kinetic strike. Emphasize the importance of smart, non-emotional escalation.",
+            "next_block": "RoeLadder_Interactive"
+        },
+        {
+            "block_id": "RoeLadder_Interactive",
+            "type": "interactive_demo",
+            "demo_component": "RoeLadderDemo", 
             "next_block": "CaseStudyIridiumCosmos"
         },
         {

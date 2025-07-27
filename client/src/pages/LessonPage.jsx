@@ -26,6 +26,7 @@ import DoctrineHotspots from '../components/interactive/DoctrineHotspots';
 import OrbitalMechanicsDemo from '../components/interactive/OrbitalMechanicsDemo';
 import LegalTimelineDemo from '../components/interactive/LegalTimelineDemo';
 import ThreatMatrixDemo from '../components/interactive/ThreatMatrixDemo';
+import RoeLadderDemo from '../components/interactive/RoeLadderDemo';
 // Remove ChatPanel import since we're using integrated chat
 // import ChatPanel from '../components/chat/ChatPanel';
 
@@ -602,7 +603,20 @@ Format your response to include both immediate feedback and any trait analysis.`
                 </div>
               </>
             );
-          
+          case 'RoeLadderDemo':
+          return (
+            <>
+              <RoeLadderDemo />
+              <div className="text-center mt-6">
+                <button
+                  onClick={() => handleNavigate(augmentedBlock.next_block)}
+                  className="px-6 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700"
+                >
+                  Continue
+                </button>
+              </div>
+            </>
+          );
                 default:
                 return <p>Unknown interactive demo: {augmentedBlock.demo_component}</p>;
 
