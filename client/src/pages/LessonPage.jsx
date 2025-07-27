@@ -22,6 +22,10 @@ import LessonProgressIndicator from '../components/lesson/LessonProgressIndicato
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import InteractiveGlobeDemo from '../components/interactive/InteractiveGlobeDemo';
+import DoctrineHotspots from '../components/interactive/DoctrineHotspots';
+import OrbitalMechanicsDemo from '../components/interactive/OrbitalMechanicsDemo';
+import LegalTimelineDemo from '../components/interactive/LegalTimelineDemo';
+import ThreatMatrixDemo from '../components/interactive/ThreatMatrixDemo';
 // Remove ChatPanel import since we're using integrated chat
 // import ChatPanel from '../components/chat/ChatPanel';
 
@@ -539,8 +543,69 @@ Format your response to include both immediate feedback and any trait analysis.`
                     </div>
                   </DndProvider>
                 );
-              default:
+              case 'DoctrineHotspots':
+              return (
+                      <>
+                        <DoctrineHotspots />
+                        <div className="text-center mt-6">
+                          <button
+                            onClick={() => handleNavigate(augmentedBlock.next_block)}
+                            className="px-6 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700"
+                          >
+                            Continue
+                          </button>
+                        </div>
+                      </>
+                    );
+
+              case 'OrbitalMechanicsDemo':
+                      return (
+                        <>
+                          <OrbitalMechanicsDemo />
+                          <div className="text-center mt-6">
+                            <button
+                              onClick={() => handleNavigate(augmentedBlock.next_block)}
+                              className="px-6 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700"
+                            >
+                              Continue
+                            </button>
+                          </div>
+                        </>
+                      );
+
+              case 'LegalTimelineDemo':
+              return (
+                <>
+                  <LegalTimelineDemo />
+                  <div className="text-center mt-6">
+                    <button
+                      onClick={() => handleNavigate(augmentedBlock.next_block)}
+                      className="px-6 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700"
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </>
+              );
+
+            case 'ThreatMatrixDemo':
+            return (
+              <>
+                <ThreatMatrixDemo />
+                <div className="text-center mt-6">
+                  <button
+                    onClick={() => handleNavigate(augmentedBlock.next_block)}
+                    className="px-6 py-2 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </>
+            );
+          
+                default:
                 return <p>Unknown interactive demo: {augmentedBlock.demo_component}</p>;
+
             }
           default:
             return <p>Unsupported block type: {currentBlock.type}</p>;

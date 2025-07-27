@@ -41,6 +41,13 @@
             },
             "learning_goal": "Introduce key allied space doctrines (UK, USSF, NATO) and the concept of collective defense in space.",
             "llm_instruction": "As Spacey, brief the Commander on key allied space doctrines. Mention UK Space Command, US Space Force Delta 5, and NATO's Article 5 implications regarding satellite attacks. Emphasize the evolving rules of engagement.",
+            "next_block": "AlliedDoctrine_Interactive"
+        },
+
+        {
+            "block_id": "AlliedDoctrine_Interactive",
+            "type": "interactive_demo",
+            "demo_component": "DoctrineHotspots", 
             "next_block": "OrbitalMechanics"
         },
         {
@@ -52,8 +59,15 @@
             },
             "learning_goal": "Teach fundamental orbital mechanics concepts: Inclination, RAAN, and Collision Probability (P-c).",
             "llm_instruction": "As Spacey, explain Inclination, RAAN, and Collision Probability (P-c) in simple terms. Use the analogy of 'orbital chess' to convey the strategic complexity. Keep it under 90 seconds.",
+            "next_block": "OrbitalMechanics_Interactive"
+        },
+        {
+            "block_id": "OrbitalMechanics_Interactive",
+            "type": "interactive_demo",
+            "demo_component": "OrbitalMechanicsDemo", 
             "next_block": "LegalEthicalFramework"
         },
+
         {
             "block_id": "LegalEthicalFramework",
             "type": "narration",
@@ -63,6 +77,13 @@
             },
             "learning_goal": "Outline the key international legal and ethical frameworks governing space (OST, Artemis Accords, Liability Convention).",
             "llm_instruction": "As Spacey, summarize the core tenets of the Outer Space Treaty, Artemis Accords, and the Liability Convention. Emphasize the tension between these rules and real-world conflicts.",
+            "next_block": "LegalFramework_Interactive"
+        },
+
+        {
+            "block_id": "LegalFramework_Interactive",
+            "type": "interactive_demo",
+            "demo_component": "LegalTimelineDemo", 
             "next_block": "ThreatCatalogue"
         },
         {
@@ -74,6 +95,13 @@
             },
             "learning_goal": "Identify and describe various space threats: Kinetic ASATs, Directed-Energy, Co-orbital, Cyber, and GPS Spoofing.",
             "llm_instruction": "As Spacey, detail the different types of threats in space warfare. Explain Kinetic ASATs, Directed-energy weapons, Co-orbital threats, and Cyber/GPS spoofing. Use vivid language to convey the danger.",
+            "next_block":  "ThreatMatrix_Interactive"
+        },
+
+        {
+            "block_id": "ThreatMatrix_Interactive",
+            "type": "interactive_demo",
+            "demo_component": "ThreatMatrixDemo", 
             "next_block": "ROEDecisionLadder"
         },
         {
