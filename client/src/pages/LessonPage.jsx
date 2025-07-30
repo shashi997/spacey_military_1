@@ -475,10 +475,11 @@ Format your response to include both immediate feedback and any trait analysis.`
       console.log("✅ Lesson progress saved as completed");
 
       // --- NEW: Save final summary to backend for mission completion ---
-      if (currentUser?.uid && lesson) {
+      const missionIdToUse = lesson?.mission_id || lessonId;
+      if (currentUser?.uid && missionIdToUse) {
         await saveFinalSummary({
           userId: currentUser.uid,
-          missionId: lesson.mission_id,
+          missionId: missionIdToUse,
           summary: "Mission completed", // You can pass a more detailed summary if available
         });
         console.log("✅ Final summary saved to backend");
