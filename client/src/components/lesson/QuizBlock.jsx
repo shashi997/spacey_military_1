@@ -1,17 +1,56 @@
 import React, { useState } from 'react';
 import { CheckCircle, XCircle, BrainCircuit, SkipForward } from 'lucide-react';
+import useSmartProfile from '../../hooks/useSmartProfile';
 
-const QuizBlock = ({ block, onComplete }) => {
+const QuizBlock = ({ block, onComplete, userId, lessonId }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
+  const [quizBehavior, setQuizBehavior] = useState({
+    totalQuestions: block.questions.length,
+    correctAnswers: 0,
+    incorrectAnswers: 0,
+    timeSpent: 0,
+    attempts: 0
+  });
+
+  const { trackAnalytical, trackPersistence, trackCuriosity, trackScientificThinking } = useSmartProfile(userId, lessonId);
 
   const currentQuestion = block.questions[currentQuestionIndex];
 
   const handleOptionSelect = (option, index) => {
     if (isAnswered) return;
+    
     setSelectedOption(index);
     setIsAnswered(true);
+    
+    // Track quiz behavior
+    if (userId && lessonId) {
+      const isCorrect = option.is_correct;
+      
+      // Update quiz behavior state
+      setQuizBehavior(prev => ({
+        ...prev,
+        correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
+        incorrectAnswers: prev.incorrectAnswers + (isCorrect ? 0 : 1),
+        attempts: prev.attempts + 1
+      }));
+      
+      // Track analytical thinking for quiz participation
+      trackAnalytical(`answered quiz question: ${currentQuestion.question_text.substring(0, 50)}...`, 'quiz');
+      
+      // Track scientific thinking if the question is science-related
+      if (currentQuestion.question_text.toLowerCase().includes('physics') || 
+          currentQuestion.question_text.toLowerCase().includes('science') ||
+          currentQuestion.question_text.toLowerCase().includes('mechanism')) {
+        trackScientificThinking(`answered science question: ${currentQuestion.question_text.substring(0, 50)}...`, 'quiz');
+      }
+      
+      // Track persistence if they got it wrong but will continue
+      if (!isCorrect) {
+        trackPersistence(`continued after incorrect answer`, 'quiz');
+      }
+    }
   };
 
   const handleNext = () => {
@@ -21,6 +60,19 @@ const QuizBlock = ({ block, onComplete }) => {
     if (currentQuestionIndex < block.questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
+      // Track quiz completion behavior
+      if (userId && lessonId) {
+        const accuracy = quizBehavior.correctAnswers / quizBehavior.totalQuestions;
+        
+        if (accuracy >= 0.8) {
+          trackAnalytical(`completed quiz with high accuracy: ${Math.round(accuracy * 100)}%`, 'quiz_completion');
+        } else if (accuracy >= 0.6) {
+          trackPersistence(`completed quiz with moderate accuracy: ${Math.round(accuracy * 100)}%`, 'quiz_completion');
+        } else {
+          trackPersistence(`completed quiz despite low accuracy: ${Math.round(accuracy * 100)}%`, 'quiz_completion');
+        }
+      }
+      
       onComplete();
     }
   };

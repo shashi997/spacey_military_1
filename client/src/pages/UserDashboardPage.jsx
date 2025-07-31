@@ -91,10 +91,10 @@ const UserDashboardPage = () => {
   }
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden bg-[radial-gradient(ellipse_at_bottom,_#1b2735_0%,_#090a0f_100%)] text-white flex flex-col items-center justify-center">
+    <div className="relative w-full min-h-screen bg-[radial-gradient(ellipse_at_bottom,_#1b2735_0%,_#090a0f_100%)] text-white">
       <Navbar />
-      <main className="flex flex-col items-center justify-start w-full min-h-[calc(100vh-64px)] pt-10 pb-8 px-2 sm:px-4">
-        <div className="w-full max-w-lg mx-auto p-4 sm:p-8 space-y-6 bg-black/40 backdrop-blur-md rounded-xl border border-white/10 text-center shadow-xl">
+      <main className="w-full pt-20 pb-8 px-4 sm:px-8">
+        <div className="w-full">
           <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">
             Welcome, {userData ? userData.name : currentUser.email}!
           </h1>
@@ -103,7 +103,7 @@ const UserDashboardPage = () => {
           </p>
 
           {/* Player Profile Card */}
-          <div className="flex justify-center my-6 sm:my-8">
+          <div className="my-6 sm:my-8">
             <PlayerProfile
               userId={currentUser.uid}
               traits={traits}

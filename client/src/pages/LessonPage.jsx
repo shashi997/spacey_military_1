@@ -55,6 +55,7 @@ import useAudio from "../hooks/useAudio";
 import { useAuth } from "../hooks/useAuth";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 import { useConversationManager } from "../hooks/useConversationManager";
+import useSmartProfile from "../hooks/useSmartProfile";
 
 import { db, auth } from "../firebaseConfig"; // Import Firebase services
 import { doc, setDoc, getDoc, Timestamp } from "firebase/firestore";
@@ -78,6 +79,9 @@ const LessonPage = () => {
 
   // --- CONVERSATION MANAGER ---
   const { handleUserChat } = useConversationManager();
+
+  // --- SMART PROFILE SYSTEM ---
+  const { completeMission, trackBehavior } = useSmartProfile(currentUser?.uid, lessonId);
 
   const [hasStarted, setHasStarted] = useState(false); // Add a state to track if the lesson has started
 
@@ -484,7 +488,21 @@ Format your response to include both immediate feedback and any trait analysis.`
         });
         console.log("✅ Final summary saved to backend");
       }
-      // --- END NEW ---
+      
+      // --- SMART PROFILE SYSTEM: Track mission completion ---
+      if (currentUser?.uid && lessonId) {
+        const completionData = {
+          userTags,
+          chatHistory: chatHistory.length,
+          mediaIndex: currentMediaIndex,
+          lessonTitle: lesson?.title || lessonId,
+          completedAt: new Date().toISOString()
+        };
+        
+        await completeMission(completionData);
+        console.log("✅ Mission completion tracked in Smart Profile System");
+      }
+      // --- END SMART PROFILE SYSTEM ---
     } catch (error) {
       console.error("❌ Error marking lesson as complete:", error);
     }
@@ -496,6 +514,8 @@ Format your response to include both immediate feedback and any trait analysis.`
     saveLessonProgress,
     currentUser?.uid,
     lesson,
+    lessonId,
+    completeMission,
   ]);
 
   const handleFeedbackComplete = useCallback(() => {
@@ -648,7 +668,14 @@ Format your response to include both immediate feedback and any trait analysis.`
               />
             );
           case "choice":
-            return <ChoiceBlock block={currentBlock} onChoice={handleChoice} />;
+            return (
+              <ChoiceBlock 
+                block={currentBlock} 
+                onChoice={handleChoice}
+                userId={currentUser?.uid}
+                lessonId={lessonId}
+              />
+            );
           case "reflection":
             return (
               <ReflectionBlock
@@ -662,6 +689,8 @@ Format your response to include both immediate feedback and any trait analysis.`
               <QuizBlock
                 block={augmentedBlock}
                 onComplete={() => handleNavigate(augmentedBlock.next_block)}
+                userId={currentUser?.uid}
+                lessonId={lessonId}
               />
             );
           // --- NEW: CASE TO RENDER INTERACTIVE DEMOS ---

@@ -58,7 +58,4 @@ router.post("/profile/saveFinalSummary", saveFinalSummary);
 // GET route for unlock logic
 router.get("/profile/canUnlock", canUnlock);
 
-// GET route for trait feedback
-router.get("/profile/traitFeedback/:userId", getTraitFeedback);
-
 module.exports = router;

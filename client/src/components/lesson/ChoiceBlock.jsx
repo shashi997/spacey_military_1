@@ -2,8 +2,21 @@
 
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
+import useSmartProfile from '../../hooks/useSmartProfile';
 
-const ChoiceBlock = ({ block, onChoice }) => {
+const ChoiceBlock = ({ block, onChoice, userId, lessonId }) => {
+  const { trackChoice } = useSmartProfile(userId, lessonId);
+
+  const handleChoice = (choice) => {
+    // Track the choice for behavior analysis
+    if (userId && lessonId) {
+      trackChoice(choice.text, block.choices.map(c => c.text), block.content);
+    }
+    
+    // Call the original onChoice handler
+    onChoice(choice);
+  };
+
   return (
     <div className="animate-fade-in space-y-6">
       <p className="text-lg text-gray-300 leading-relaxed">{block.content}</p>
@@ -11,7 +24,7 @@ const ChoiceBlock = ({ block, onChoice }) => {
         {block.choices.map((choice, index) => (
           <button
             key={index}
-            onClick={() => onChoice(choice)} // Pass the entire choice object
+            onClick={() => handleChoice(choice)} // Use the enhanced handler
             className="w-full text-left flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 border border-transparent hover:border-cyan-500/50 transition-all duration-200 group"
           >
             <span className="text-white">{choice.text}</span>
