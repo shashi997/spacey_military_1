@@ -131,8 +131,16 @@
             },
             "learning_goal": "Analyze the Iridium-Cosmos 2009 collision as a case study for space debris and the consequences of orbital events.",
             "llm_instruction": "As Spacey, recount the Iridium-Cosmos 2009 collision. Explain what happened, the resulting debris, and its long-term implications. Pose a rhetorical question about the severity if it were deliberate.",
+            "next_block": "DebrisCloud_Interactive"
+        },
+        
+        {
+            "block_id": "DebrisCloud_Interactive",
+            "type": "interactive_demo",
+            "demo_component": "DebrisCloudDemo", 
             "next_block": "MissionPreview"
         },
+
         {
             "block_id": "MissionPreview",
             "type": "choice",
@@ -170,6 +178,7 @@
             "llm_instruction": "As Spacey, set up the next mission scenario. Clearly outline the orbital traffic crisis and the student's role as Coalition SatOps Commander. Present the initial choices for advising leadership, emphasizing the need for wise decisions.",
             "next_block": null
         },
+
         {
             "block_id": "Briefing_End",
             "type": "narration",
@@ -178,5 +187,6 @@
             "llm_instruction": "As Spacey, provide a brief concluding remark for the briefing, acknowledging the student's first decision in the preview scenario and signaling readiness for the next full mission.",
             "next_block": null
         }
+        
     ]
 }
