@@ -1,107 +1,278 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Rocket } from 'lucide-react';
-
-const TRAIT_LABELS = [
-  { key: 'cautious', label: 'Cautious', color: 'bg-cyan-400' },
-  { key: 'bold', label: 'Bold', color: 'bg-yellow-400' },
-  { key: 'creative', label: 'Creative', color: 'bg-purple-400' },
-];
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Rocket, TrendingUp, Brain, Users, Lightbulb, Star, AlertCircle } from "lucide-react";
+import smartProfileSystem, { TRAIT_DEFINITIONS } from "../../utils/smartProfileSystem";
 
 // Use a more visually appealing avatar placeholder
-const AVATAR_URL = 'https://api.dicebear.com/7.x/adventurer/svg?seed=Spacey';
+const AVATAR_URL = "https://api.dicebear.com/7.x/adventurer/svg?seed=Spacey";
 
-const StarryBg = () => (
-  <svg className="absolute inset-0 w-full h-full z-0" style={{ pointerEvents: 'none' }}>
-    <circle cx="30" cy="40" r="1.5" fill="#fff" opacity="0.7" />
-    <circle cx="120" cy="80" r="1" fill="#fff" opacity="0.5" />
-    <circle cx="200" cy="60" r="1.2" fill="#fff" opacity="0.6" />
-    <circle cx="350" cy="120" r="1.7" fill="#fff" opacity="0.8" />
-    <circle cx="400" cy="30" r="1.1" fill="#fff" opacity="0.4" />
-    <circle cx="500" cy="100" r="1.3" fill="#fff" opacity="0.5" />
-    <circle cx="600" cy="50" r="1.5" fill="#fff" opacity="0.7" />
-    <circle cx="700" cy="90" r="1.2" fill="#fff" opacity="0.6" />
-  </svg>
-);
-
-const PlayerProfile = ({ userId, traits = {}, missions = [], loading = false }) => {
+const PlayerProfile = ({
+  userId,
+  traits = {},
+  missions = [],
+  loading = false,
+}) => {
   // Count completed missions
-  const completedCount = missions.filter(m => m.completed_at).length;
+  const completedCount = missions.filter((m) => m.completed_at).length;
+  const [traitFeedback, setTraitFeedback] = useState("");
+  const [profileSummary, setProfileSummary] = useState(null);
+  const [dominantTraits, setDominantTraits] = useState([]);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isUsingSampleData, setIsUsingSampleData] = useState(false);
+
+  useEffect(() => {
+    if (userId) {
+      loadProfileData();
+    }
+  }, [userId]);
+
+  const loadProfileData = async () => {
+    if (!userId) return;
+    
+    setIsLoadingProfile(true);
+    try {
+      console.log('Loading profile data for user:', userId);
+      // Get comprehensive profile data
+      const summary = await smartProfileSystem.generateProfileSummary(userId);
+      console.log('Profile summary:', summary);
+      
+      // If no traits exist, initialize sample traits for testing
+      if (!summary.traits || Object.keys(summary.traits).length === 0) {
+        console.log('No traits found, initializing sample traits...');
+        setIsUsingSampleData(true);
+        await smartProfileSystem.initializeSampleTraits(userId);
+        // Reload the summary after initialization
+        const updatedSummary = await smartProfileSystem.generateProfileSummary(userId);
+        setProfileSummary(updatedSummary);
+        setDominantTraits(updatedSummary.dominantTraits);
+        setTraitFeedback(updatedSummary.feedback);
+      } else {
+        setIsUsingSampleData(false);
+        setProfileSummary(summary);
+        setDominantTraits(updatedSummary.dominantTraits);
+        setTraitFeedback(updatedSummary.feedback);
+      }
+    } catch (error) {
+      console.error('Error loading profile data:', error);
+      // Fallback to API call
+      try {
+        const res = await axios.get(`/api/profile/traitFeedback/${userId}`);
+        setTraitFeedback(res.data.feedback);
+      } catch (apiError) {
+        console.log('API fallback failed, using default message');
+        setTraitFeedback("Your profile is still evolving.");
+      }
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
+
+  // Get trait display data
+  const getTraitDisplayData = () => {
+    const allTraits = profileSummary?.traits || traits;
+    return Object.entries(allTraits)
+      .map(([traitKey, score]) => {
+        const traitDef = TRAIT_DEFINITIONS[traitKey];
+        return {
+          key: traitKey,
+          label: traitDef?.label || traitKey,
+          color: traitDef?.color || 'bg-gray-400',
+          score: score || 0,
+          description: traitDef?.description || ''
+        };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6); // Show top 6 traits
+  };
+
+  const traitDisplayData = getTraitDisplayData();
+
   return (
-    <div className="w-full max-w-md mx-auto rounded-2xl shadow-2xl border border-blue-200/30 p-5 text-white relative overflow-hidden bg-gradient-to-br from-[#23283a] to-[#181c24]" style={{minHeight:'350px'}}>
-      <StarryBg />
-      <div className="relative z-10 grid grid-cols-2 gap-5">
-        {/* Left: Avatar, Quote, Mission History */}
-        <div className="flex flex-col items-center">
-          {/* Avatar with circular background and soft shadow */}
-          <div className="relative mb-1 flex flex-col items-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-blue-900 flex items-center justify-center border-4 border-blue-300 shadow-lg z-10">
-              <img src={AVATAR_URL} alt="Avatar" className="w-16 h-16 rounded-full object-cover shadow-md" />
-            </div>
-            {/* Speech bubble quote, visually connected to avatar */}
-            <div className="relative flex flex-col items-center mt-1">
-              <div className="bg-[#23283a] text-gray-100 text-sm rounded-2xl px-4 py-2 shadow-xl border border-blue-300/30 font-semibold italic text-center max-w-xs">
-                You think before you leap.<br />I like that.
-              </div>
-              {/* Pointer triangle */}
-              <div style={{ width: 0, height: 0, borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderTop: '12px solid #23283a' }} className="mx-auto -mt-1"></div>
-            </div>
+    <div className="w-full">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 mb-2">
+          Smart Profile Dashboard
+        </h1>
+        <p className="text-gray-300 text-lg">
+          Your evolving personality traits and learning journey
+        </p>
+        
+        {/* Sample Data Indicator */}
+        {isUsingSampleData && (
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-yellow-900/30 border border-yellow-500/50 rounded-lg">
+            <AlertCircle className="w-4 h-4 text-yellow-400" />
+            <span className="text-yellow-200 text-sm">
+              Showing sample data - Complete missions to see your real traits evolve!
+            </span>
           </div>
-          {/* Mission History Placeholder */}
-          <div className="w-full mt-10">
-            <h3 className="text-base font-bold mb-1 tracking-wide text-blue-200">MISSION HISTORY</h3>
-            <div className="space-y-2">
-              <div className="text-xs text-gray-400">No missions completed yet.</div>
-            </div>
+        )}
+      </div>
+
+      {/* Spacey Dashboard Bar */}
+      <div className="mb-8 flex justify-center">
+        <div className="bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700 rounded-lg shadow-lg px-6 py-3 flex items-center justify-between min-w-[300px] max-w-md">
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-semibold text-white">Spacey Dashboard</span>
+            {isUsingSampleData && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-yellow-900/30 border border-yellow-500/50 rounded text-xs">
+                <AlertCircle className="w-3 h-3 text-yellow-400" />
+                <span className="text-yellow-200">Sample</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Spacey Icon on the right */}
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border border-blue-300 shadow-sm">
+            <Rocket className="w-4 h-4 text-white" />
           </div>
         </div>
-        {/* Right: Traits */}
-        <div className="flex flex-col justify-between h-full">
-          <div>
-            <h2 className="text-xl font-extrabold mb-2 tracking-wide text-white">PLAYER PROFILE</h2>
-            <h3 className="text-base font-bold mb-2 tracking-wide text-blue-200">TRAITS</h3>
-            <div className="space-y-3">
-              {TRAIT_LABELS.map(({ key, label, color }) => (
-                <div key={key} className="flex items-center gap-2">
-                  <span className="w-20 text-sm font-semibold font-mono text-gray-200">{label}</span>
-                  <div className="flex-1 h-4 bg-gray-700 rounded-full overflow-hidden shadow-inner">
+      </div>
+
+      {/* Main Profile Card */}
+      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-gray-700 shadow-2xl p-8">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+          
+          {/* Left Column - Avatar and Feedback */}
+          <div className="xl:col-span-1">
+            {/* Avatar Section */}
+            <div className="text-center mb-6">
+              <div className="relative inline-block">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-4 border-blue-300 shadow-lg">
+                  <img
+                    src={AVATAR_URL}
+                    alt="Avatar"
+                    className="w-20 h-20 rounded-full object-cover"
+                  />
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+                  <Star className="w-4 h-4 text-white" />
+                </div>
+              </div>
+              
+              {/* Feedback Message */}
+              <div className="mt-4 p-4 bg-blue-900/20 rounded-lg border border-blue-500/30">
+                <p className="text-blue-200 italic text-sm">
+                  {isLoadingProfile ? "Analyzing your profile..." : traitFeedback}
+                </p>
+              </div>
+            </div>
+
+            {/* Mission Progress */}
+            <div className="text-center mb-6">
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center justify-center gap-2">
+                <Rocket className="w-5 h-5 text-cyan-400" />
+                Missions Completed
+              </h3>
+              <div className="flex justify-center gap-2 mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-4 h-4 rounded-full border-2 ${
+                      i < completedCount
+                        ? "bg-cyan-400 border-cyan-400"
+                        : "bg-gray-700 border-gray-600"
+                    }`}
+                  ></div>
+                ))}
+              </div>
+              <span className="text-2xl font-bold text-cyan-400">{completedCount}</span>
+            </div>
+
+            {/* Top Three Traits */}
+            {dominantTraits.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-purple-400" />
+                  Top Traits
+                </h3>
+                <div className="space-y-2">
+                  {dominantTraits.slice(0, 3).map(({ trait, score }, index) => {
+                    const traitDef = TRAIT_DEFINITIONS[trait];
+                    return (
+                      <div key={trait} className="flex items-center gap-3 p-2 bg-gray-800/50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-gray-400 w-4">#{index + 1}</span>
+                          <div className={`w-3 h-3 rounded-full ${traitDef?.color || 'bg-gray-400'}`}></div>
+                        </div>
+                        <span className="text-sm font-medium text-gray-200 flex-1">
+                          {traitDef?.label || trait}
+                        </span>
+                        <span className="text-sm font-bold text-white">
+                          {score}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Traits */}
+          <div className="xl:col-span-3">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <TrendingUp className="w-6 h-6 text-purple-400" />
+              Evolving Traits
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {traitDisplayData.map(({ key, label, color, score, description }) => (
+                <div key={key} className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 hover:border-gray-600 transition-colors">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-4 h-4 rounded-full ${color}`}></div>
+                      <span className="text-lg font-semibold text-gray-200">{label}</span>
+                    </div>
+                    <span className="text-2xl font-bold text-white">{score}</span>
+                  </div>
+                  <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden mb-3">
                     <div
-                      className={`${color} h-4 rounded-full transition-all shadow-lg`}
-                      style={{ width: `${Math.min((traits[key] || 0) * 33, 100)}%` }}
+                      className={`${color} h-4 rounded-full transition-all duration-500`}
+                      style={{
+                        width: `${Math.min(score * 10, 100)}%`,
+                      }}
                     ></div>
                   </div>
-                  <span className="ml-2 text-sm font-bold text-white drop-shadow-lg">{traits[key] || 0}</span>
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    {description}
+                  </p>
                 </div>
               ))}
             </div>
+
+            {/* Stats Summary */}
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-purple-900/20 rounded-lg border border-purple-500/30">
+                <div className="text-2xl font-bold text-purple-400">{traitDisplayData.length}</div>
+                <div className="text-sm text-gray-400">Active Traits</div>
+              </div>
+              <div className="text-center p-4 bg-blue-900/20 rounded-lg border border-blue-500/30">
+                <div className="text-2xl font-bold text-blue-400">
+                  {Math.round(traitDisplayData.reduce((sum, trait) => sum + trait.score, 0) / traitDisplayData.length * 10) / 10}
+                </div>
+                <div className="text-sm text-gray-400">Avg Score</div>
+              </div>
+              <div className="text-center p-4 bg-green-900/20 rounded-lg border border-green-500/30">
+                <div className="text-2xl font-bold text-green-400">{completedCount}</div>
+                <div className="text-sm text-gray-400">Missions</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      {/* Missions Completed Progress - moved to branding area */}
-      {/* Branding with white circular background and shadow */}
-      <div className="absolute bottom-3 right-3 flex flex-col items-center gap-2 opacity-95 z-10">
-        <span className="font-extrabold tracking-widest text-base text-white mb-1">MISSIONS COMPLETED</span>
-        <span className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg border border-blue-200 mb-1">
-          <Rocket size={28} className="text-blue-500" />
-        </span>
-        <div className="flex gap-2 mb-1">
-          {[...Array(5)].map((_, i) => (
-            <span
-              key={i}
-              className={`w-5 h-5 rounded-full border-2 ${i < completedCount ? 'bg-blue-400 border-blue-400 shadow-lg' : 'bg-gray-800 border-gray-600'} transition-all`}
-            ></span>
-          ))}
-        </div>
-        <span className="font-extrabold tracking-widest text-lg text-white">SPACEY <span className="text-cyan-300">SCIENCE</span></span>
-      </div>
+
       {/* Loading overlay */}
-      {loading && (
-        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
-          <span className="text-white text-lg font-bold">Loading...</span>
+      {(loading || isLoadingProfile) && (
+        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg flex items-center gap-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400"></div>
+            <span className="text-white text-lg">Loading profile...</span>
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-export default PlayerProfile; 
+export default PlayerProfile;

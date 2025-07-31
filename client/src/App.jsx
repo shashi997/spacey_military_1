@@ -5,6 +5,7 @@ import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import LessonPage from './pages/LessonPage';
 import UserDashboardPage from './pages/UserDashboardPage';
+import SmartProfileTestPage from './pages/SmartProfileTestPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AuthLayout from './components/layout/AuthLayout';
 import { SpeechCoordinationProvider } from './hooks/useSpeechCoordination.jsx';
@@ -29,6 +30,7 @@ function App() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/lesson/:lessonId" element={<LessonPage />} />
               <Route path="/profile" element={<UserDashboardPage />} />
+              <Route path="/smart-profile-test" element={<SmartProfileTestPage />} />
             </Route>
 
             {/* Add a catch-all route for 404 Not Found pages */}
