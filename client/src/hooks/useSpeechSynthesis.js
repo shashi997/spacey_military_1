@@ -1,101 +1,110 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-/**
- * A robust custom hook to interact with the browser's SpeechSynthesis API.
- * @returns {object} An object containing the speak function, speaking state, and support status.
- */
 const useSpeechSynthesis = () => {
   const [isSupported, setIsSupported] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voices, setVoices] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState(null);
   const isSpeakingRef = useRef(false);
 
   useEffect(() => {
-    if ('speechSynthesis' in window) {
-      setIsSupported(true);
-      const synth = window.speechSynthesis;
-      const updateVoices = () => {
-        if (synth.getVoices().length > 0) {
-          // Voices loaded
-        }
-      };
-      synth.addEventListener('voiceschanged', updateVoices);
-      updateVoices();
-      return () => {
-        synth.removeEventListener('voiceschanged', updateVoices);
-        if (synth.speaking) {
-          synth.cancel();
-        }
-      };
-    }
-  }, []);
+    if (!('speechSynthesis' in window)) return;
 
-  const speak = useCallback((text, { onEnd } = {}) => {
-    const textToSpeak = text.trim();
-    if (!isSupported || !textToSpeak) {
-      if (onEnd) setTimeout(() => onEnd(), 0); // Ensure onEnd is called to not block flow
-      return;
-    }
-
+    setIsSupported(true);
     const synth = window.speechSynthesis;
 
-    const trySpeak = () => {
-      const availableVoices = synth.getVoices();
-      if (availableVoices.length === 0) {
-        setTimeout(trySpeak, 100);
+    const updateVoices = () => {
+      const allVoices = synth.getVoices();
+
+      // Try filtering likely female voices by name
+      const femaleVoices = allVoices.filter((voice) =>
+        /(samantha|zira|karen|victoria|shelley|sandy|female|tessa|sara)/i.test(voice.name)
+      );
+
+      setVoices(femaleVoices);
+
+      if (!selectedVoice && femaleVoices.length > 0) {
+        setSelectedVoice(femaleVoices[0]); // pick the first female voice
+      } else if (!selectedVoice && allVoices.length > 0) {
+        setSelectedVoice(allVoices.find(v => v.lang.startsWith('en')) || allVoices[0]);
+      }
+    };
+
+    synth.addEventListener('voiceschanged', updateVoices);
+    updateVoices();
+
+    return () => {
+      synth.removeEventListener('voiceschanged', updateVoices);
+      synth.cancel();
+    };
+  }, [selectedVoice]);
+
+  const speak = useCallback(
+    (text, { onEnd } = {}) => {
+      const textToSpeak = text.trim();
+      if (!isSupported || !textToSpeak) {
+        if (onEnd) setTimeout(() => onEnd(), 0);
         return;
       }
 
-      if (synth.speaking) {
-        synth.cancel();
-      }
+      const synth = window.speechSynthesis;
 
-      const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      const selectedVoice =
-        availableVoices.find(v => v.name === 'Google UK English Female' && v.localService) ||
-        availableVoices.find(v => v.name === 'Microsoft Zira - English (United States)' && v.localService) ||
-        availableVoices.find(v => v.lang.startsWith('en') && v.localService) ||
-        availableVoices.find(v => v.name === 'Google UK English Female') ||
-        availableVoices.find(v => v.name === 'Microsoft Zira - English (United States)') ||
-        availableVoices.find(v => v.lang === 'en-US') ||
-        availableVoices.find(v => v.lang.startsWith('en'));
+      const trySpeak = () => {
+        const allVoices = synth.getVoices();
+        if (allVoices.length === 0) {
+          setTimeout(trySpeak, 100);
+          return;
+        }
 
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-      }
+        if (synth.speaking) {
+          synth.cancel();
+        }
 
-      utterance.pitch = 1;
-      utterance.rate = 1;
-      utterance.volume = 1;
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
 
-      utterance.onstart = () => {
-        isSpeakingRef.current = true;
-        setIsSpeaking(true);
-      };
+        // Fallback to first matching female voice or any English voice
+        const fallbackVoice =
+          selectedVoice ||
+          allVoices.find((v) =>
+            /(samantha|zira|karen|victoria|shelley|sandy|female|tessa|sara)/i.test(v.name)
+          ) ||
+          allVoices.find((v) => v.lang.startsWith('en')) ||
+          allVoices[0];
 
-      utterance.onend = () => {
-        setTimeout(() => {
-          if (isSpeakingRef.current) {
+        utterance.voice = fallbackVoice;
+
+        utterance.pitch = 1;
+        utterance.rate = 1;
+        utterance.volume = 1;
+
+        utterance.onstart = () => {
+          isSpeakingRef.current = true;
+          setIsSpeaking(true);
+        };
+
+        utterance.onend = () => {
+          setTimeout(() => {
             isSpeakingRef.current = false;
             setIsSpeaking(false);
-            if (onEnd) onEnd(); // <-- Call the provided onEnd callback
-          }
-        }, 100);
-      };
+            if (onEnd) onEnd();
+          }, 100);
+        };
 
-      utterance.onerror = (event) => {
-        console.error('SpeechSynthesis Error', event);
-        isSpeakingRef.current = false;
-        setIsSpeaking(false);
-        if (onEnd) onEnd(); // <-- Also call onEnd on error
-      };
+        utterance.onerror = (event) => {
+          console.error('SpeechSynthesis Error', event);
+          isSpeakingRef.current = false;
+          setIsSpeaking(false);
+          if (onEnd) onEnd();
+        };
 
-      setTimeout(() => {
+        console.log('Using voice:', utterance.voice.name);
         synth.speak(utterance);
-      }, 50);
-    };
+      };
 
-    trySpeak();
-  }, [isSupported]);
+      trySpeak();
+    },
+    [isSupported, selectedVoice]
+  );
 
   const cancel = useCallback(() => {
     if (!isSupported) return;
@@ -119,6 +128,9 @@ const useSpeechSynthesis = () => {
     speak,
     cancel,
     prime,
+    voices,
+    selectedVoice,
+    setSelectedVoice
   };
 };
 
