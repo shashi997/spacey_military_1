@@ -18,7 +18,7 @@
     "@tensorflow/tfjs-converter": "^4.22.0",
     "@tensorflow/tfjs-core": "^4.22.0",
     "axios": "^1.10.0",
-    "face-api.js": "^0.22.2",
+    "face-api.js": "^0.20.0",
     "firebase": "^11.9.1",
     "gsap": "^3.13.0",
     "lucide-react": "^0.523.0",
