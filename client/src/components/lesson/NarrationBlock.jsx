@@ -1,9 +1,11 @@
+// src/components/lesson/NarrationBlock.jsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Volume2, SkipForward } from 'lucide-react';
 import { useCoordinatedSpeechSynthesis, useSpeechCoordination } from '../../hooks/useSpeechCoordination.jsx';
+import NarrationChat from './NarrationChat'; // Import the new chat component
 
-const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText }) => {
+const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText, userId, lessonId }) => {
   const { speak, cancel, isSpeaking, isSupported } = useCoordinatedSpeechSynthesis('lesson');
   const { setContextState, trackActivity } = useSpeechCoordination();
   const [speechComplete, setSpeechComplete] = useState(false);
@@ -21,7 +23,7 @@ const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText }) => {
       setContextState('isInLesson', false);
     };
 
-    if (isSupported) {
+    if (isSupported && !block.hasChat) {
       // Set lesson context and track activity
       setContextState('isInLesson', true);
       trackActivity();
@@ -32,7 +34,7 @@ const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText }) => {
       cancel();
       setContextState('isInLesson', false);
     };
-  }, [block.block_id, textToSpeak, isSupported, speak, cancel, setContextState, trackActivity]);
+  }, [block.block_id, textToSpeak, isSupported, speak, cancel, setContextState, trackActivity, block.hasChat]);
 
   const handleManualContinue = () => {
     cancel();
@@ -45,22 +47,22 @@ const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText }) => {
 
   return (
     <div className="text-center animate-[fadeIn_0.5s_ease-in-out]">
-      {isSpeaking && (
+      {!block.hasChat && isSpeaking && (
         <div className="flex justify-center items-center gap-2 text-cyan-400 mb-4 animate-pulse">
           <Volume2 />
           <span>Speaking...</span>
         </div>
       )}
 
-      <p className="text-lg md:text-xl text-gray-300 my-8">{block.content}</p>
-      
-      {block.dynamic_outcome && (
+      {!block.hasChat && <p className="text-lg md:text-xl text-gray-300 my-8">{block.content}</p>}
+
+      {!block.hasChat && block.dynamic_outcome && (
         <p className="text-lg md:text-xl text-cyan-300 my-8 font-semibold">
           {getDynamicText(block.dynamic_outcome)}
         </p>
       )}
 
-      {block.dynamic_traits && (
+      {!block.hasChat && block.dynamic_traits && (
         <div className="my-8 p-4 border border-white/20 rounded-lg bg-black/20">
           <h3 className="font-bold text-cyan-400 mb-3">Personality Traits Exhibited:</h3>
           <ul className="list-disc list-inside text-gray-300">
@@ -69,13 +71,23 @@ const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText }) => {
         </div>
       )}
 
-      {block.educational_takeaways && (
+      {!block.hasChat && block.educational_takeaways && (
         <div className="my-8 p-4 text-left border border-white/20 rounded-lg bg-black/20">
           <h3 className="font-bold text-cyan-400 mb-3">Educational Takeaways:</h3>
           <ul className="list-disc list-inside text-gray-300">
             {block.educational_takeaways.map((item, i) => <li key={i}>{item}</li>)}
           </ul>
         </div>
+      )}
+
+      {/* Conditionally render the chat component */}
+      {block.hasChat && (
+        <NarrationChat
+          userId={userId}
+          lessonId={lessonId}
+          blockId={block.block_id}
+          block={block} // Pass the entire block object
+        />
       )}
 
       {block.next_block ? (
@@ -94,7 +106,7 @@ const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText }) => {
           Mission Complete! Return to Dashboard
         </Link>
       )}
-      
+
       {!isSupported && (
         <p className="text-xs text-gray-500 mt-6 italic">
           Auto-narration is not supported by your browser. Please use the "Continue" button.

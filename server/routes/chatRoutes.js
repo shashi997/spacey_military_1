@@ -10,6 +10,7 @@ const {
   canUnlock,
 } = require("../controllers/spaceyController");
 const { handleLessonInteraction } = require("../controllers/lessonController");
+const { handleNarrationChat } = require("../controllers/narrationController");
 
 const router = express.Router();
 
@@ -42,6 +43,9 @@ router.get("/context/:userId", getContextSummary);
 
 // POST route for lesson interactions
 router.post("/interact", handleLessonInteraction);
+
+// POST route for handling narration chat messages
+router.post("/narration/chatMessages", handleNarrationChat);
 
 // POST route for saving a player choice
 router.post("/profile/saveChoice", saveChoice);
