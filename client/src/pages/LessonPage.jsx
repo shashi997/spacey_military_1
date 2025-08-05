@@ -666,6 +666,8 @@ Format your response to include both immediate feedback and any trait analysis.`
                 onNavigate={handleNavigate}
                 getDynamicText={getDynamicText}
                 userTags={userTags}
+                userId={currentUser?.uid} // Pass userId
+                lessonId={lessonId} // Pass lessonId
               />
             );
           case "choice":
