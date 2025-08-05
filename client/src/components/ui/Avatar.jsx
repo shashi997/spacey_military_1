@@ -3,7 +3,7 @@ import { useGLTF, useAnimations } from '@react-three/drei';
 
 const Avatar = (props) => {
   const group = useRef();
-  const { scene, animations } = useGLTF('/models/greet-untitled.glb');
+  const { scene, animations } = useGLTF('/models/waving.glb');
   const { actions, names } = useAnimations(animations, group);
 
   // This effect plays the first animation on loop
@@ -23,9 +23,9 @@ const Avatar = (props) => {
     <primitive
       ref={group}
       object={scene}
-      scale={2.2} // Made the model larger to fill its new space
+      scale={2.4} // Made the model larger to fill its new space
       position-y={-2.3} // Adjusted vertical position to be centered
-      rotation-y={-0.2} // Slightly rotate the model to face the text
+      rotation-y={0.1} // Slightly rotate the model to face the text
       {...props}
     />
   );
