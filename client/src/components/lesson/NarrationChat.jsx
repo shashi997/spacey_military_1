@@ -3,7 +3,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { db } from '../../firebaseConfig';
 import { collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { sendNarrationChatMessages } from '../../api/narration_api';
-import { Send, User, Bot, ArrowDown } from 'lucide-react';
+import { Send, User, Bot, ArrowDown, Mic, MicOff } from 'lucide-react';
+import { useCoordinatedSpeechSynthesis } from '../../hooks/useSpeechCoordination';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 
 const NarrationChat = ({ userId, lessonId, blockId, block }) => {
     const [messages, setMessages] = useState([]);
@@ -13,6 +15,16 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
+    const { speak } = useCoordinatedSpeechSynthesis('narration-chat');
+
+    const {
+        isListening,
+        transcript,
+        startListening,
+        stopListening,
+        isRecognitionSupported,
+        speechError,
+    } = useSpeechRecognition();
 
     useEffect(() => {
         const messagesRef = collection(db, 'narrationChats', `${userId}_${lessonId}`, blockId);
@@ -35,13 +47,22 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages, scrollToBottom]);
+    }, [messages]);
+
+    useEffect(() => {
+        if (transcript) {
+            setNewMessage(transcript);
+        }
+    }, [transcript]);
 
     const handleScroll = useCallback(() => {
         if (chatContainerRef.current) {
             const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-            const isNearBottom = scrollHeight - scrollTop - clientHeight < 200;
-            setShowScrollButton(!isNearBottom);
+            // Show the scroll-to-bottom button if the user has scrolled up more than 100px from the bottom.
+            const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
+            // console.log(`Scroll position: ${scrollTop}, Scroll height: ${scrollHeight}, Client height: ${clientHeight}, Is scrolled up: ${isScrolledUp}`);
+            
+            setShowScrollButton(isScrolledUp);
         }
     }, []);
 
@@ -55,6 +76,10 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
 
     const sendMessage = useCallback(async () => {
         if (newMessage.trim() === '') return;
+
+        if (isListening) {
+            stopListening();
+        }
 
         setIsLoading(true);
         const messagesRef = collection(db, 'narrationChats', `${userId}_${lessonId}`, blockId);
@@ -93,6 +118,9 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
             if (responseData && responseData.aiResponse) {
                 const aiResponse = responseData.aiResponse;
 
+                // Speak the AI response
+                speak(aiResponse);
+
                 await addDoc(messagesRef, {
                     text: aiResponse,
                     sender: 'ai',
@@ -122,7 +150,15 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
             setIsLoading(false);
             scrollToBottom();
         }
-    }, [userId, lessonId, blockId, block, messages, scrollToBottom]);
+    }, [userId, lessonId, blockId, block, messages, scrollToBottom, newMessage, isListening, stopListening, speak]);
+
+    const handleMicClick = () => {
+        if (isListening) {
+            stopListening();
+        } else {
+            startListening();
+        }
+    };
 
     return (
         <div className="flex flex-col h-full border border-gray-300 rounded-md overflow-hidden">
@@ -150,6 +186,16 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
                         </div>
                     </div>
                 ))}
+                {isTyping && (
+                    <div className="mb-2 flex items-start justify-start">
+                        <div className="mr-2">
+                            <Bot size={20} className="text-gray-500" />
+                        </div>
+                        <div className="rounded-2xl break-words p-3 max-w-[80%] bg-gray-100 text-gray-800 italic animate-pulse">
+                            Spacey is typing...
+                        </div>
+                    </div>
+                )}
                 <div ref={messagesEndRef} />
 
                 {showScrollButton && (
@@ -163,27 +209,44 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
             </div>
 
             {/* Input Area */}
-            <div className="p-2 border-t border-gray-300 flex">
-                <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type your message..."
-                    className="flex-1 p-2 border border-gray-300 rounded-md mr-2 focus:outline-none focus:border-blue-500"
-                    onKeyPress={(e) => {
-                        if (e.key === 'Enter' && !isLoading && newMessage.trim() !== '') {
-                            sendMessage();
-                        }
-                    }}
-                />
-                <button
-                    onClick={sendMessage}
-                    className={`bg-blue-500 text-white p-2 rounded-md hover:bg-blue-700 ${isLoading || newMessage.trim() === '' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={isLoading || newMessage.trim() === ''}
-                >
-                    Send
-                    <Send size={16} />
-                </button>
+            <div>
+                <div className="p-2 border-t border-gray-300 flex items-center">
+                    <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder={isListening ? "Listening..." : "Type your message..."}
+                        className="flex-1 p-2 border border-gray-300 rounded-md mr-2 focus:outline-none focus:border-blue-500"
+                        onKeyPress={(e) => {
+                            if (e.key === 'Enter' && !isLoading && newMessage.trim() !== '') {
+                                sendMessage();
+                            }
+                        }}
+                        disabled={isLoading}
+                    />
+                    {isRecognitionSupported && (
+                        <button
+                            type="button"
+                            onClick={handleMicClick}
+                            disabled={isLoading}
+                            className={`p-3 rounded-md mr-2 transition-colors ${
+                                isListening 
+                                ? 'bg-red-500 text-white animate-pulse' 
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                        >
+                            {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+                        </button>
+                    )}
+                    <button
+                        onClick={sendMessage}
+                        className={`bg-blue-500 text-white p-3 rounded-md hover:bg-blue-700 ${isLoading || newMessage.trim() === '' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={isLoading || newMessage.trim() === ''}
+                    >
+                        <Send size={20} />
+                    </button>
+                </div>
+                {speechError && <div className="p-2 text-xs text-red-500 bg-red-100 border-t border-gray-300">{speechError}</div>}
             </div>
         </div>
     );
