@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, MessageSquare } from 'lucide-react';
-import { useCoordinatedSpeechSynthesis } from '../../hooks/useSpeechCoordination'; 
+// Per-panel TTS removed; main avatar handles speech
 
 const ChatPanel = ({ isOpen, onClose, chatHistory, onSendMessage }) => {
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
-  const { speak, cancel } = useCoordinatedSpeechSynthesis('chat'); // Use the speech synthesis hook
+  
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -16,14 +16,9 @@ const ChatPanel = ({ isOpen, onClose, chatHistory, onSendMessage }) => {
   useEffect(() => {
     if (isOpen) {
       scrollToBottom();
-      // Speak the latest AI message when chatHistory changes
-      const latestMessage = chatHistory.length > 0 ? chatHistory[chatHistory.length - 1] : null;
-      if (latestMessage && latestMessage.sender === 'ai') {
-        speak(latestMessage.content);
-      }
+      // No per-panel speech
     } else {
-      // Stop speaking when chat closes
-      cancel();
+      // No per-panel speech to cancel
     }
   }, [chatHistory, isOpen, speak, cancel]);
 

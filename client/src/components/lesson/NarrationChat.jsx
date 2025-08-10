@@ -4,7 +4,7 @@ import { db } from '../../firebaseConfig';
 import { collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { sendNarrationChatMessages } from '../../api/narration_api';
 import { Send, User, Bot, ArrowDown, Mic, MicOff } from 'lucide-react';
-import { useCoordinatedSpeechSynthesis } from '../../hooks/useSpeechCoordination';
+// Per-chat TTS removed; centralized avatar handles speech
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 
 const NarrationChat = ({ userId, lessonId, blockId, block }) => {
@@ -15,7 +15,7 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
-    const { speak } = useCoordinatedSpeechSynthesis('narration-chat');
+    // Remove per-chat TTS; main avatar handles all speech
 
     const {
         isListening,
@@ -118,8 +118,7 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
             if (responseData && responseData.aiResponse) {
                 const aiResponse = responseData.aiResponse;
 
-                // Speak the AI response
-                speak(aiResponse);
+                // Do not speak here; rely on centralized avatar speech
 
                 await addDoc(messagesRef, {
                     text: aiResponse,
@@ -150,7 +149,7 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
             setIsLoading(false);
             scrollToBottom();
         }
-    }, [userId, lessonId, blockId, block, messages, scrollToBottom, newMessage, isListening, stopListening, speak]);
+    }, [userId, lessonId, blockId, block, messages, scrollToBottom, newMessage, isListening, stopListening]);
 
     const handleMicClick = () => {
         if (isListening) {

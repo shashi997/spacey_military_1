@@ -1,12 +1,11 @@
 // src/components/lesson/NarrationBlock.jsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Volume2, SkipForward } from 'lucide-react';
-import { useCoordinatedSpeechSynthesis, useSpeechCoordination } from '../../hooks/useSpeechCoordination.jsx';
+import { SkipForward } from 'lucide-react';
+import { useSpeechCoordination } from '../../hooks/useSpeechCoordination.jsx';
 import NarrationChat from './NarrationChat'; // Import the new chat component
 
 const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText, userId, lessonId }) => {
-  const { speak, cancel, isSpeaking, isSupported } = useCoordinatedSpeechSynthesis('lesson');
   const { setContextState, trackActivity } = useSpeechCoordination();
   const [speechComplete, setSpeechComplete] = useState(false);
 
@@ -17,27 +16,13 @@ const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText, userId, l
   ].filter(Boolean).join(' . '); // Join with a period for a natural pause
 
   useEffect(() => {
-    const handleSpeechEnd = () => {
-      setSpeechComplete(true);
-      // Clear lesson context when narration ends
-      setContextState('isInLesson', false);
-    };
-
-    if (isSupported && !block.hasChat) {
-      // Set lesson context and track activity
-      setContextState('isInLesson', true);
-      trackActivity();
-      speak(textToSpeak, { onEnd: handleSpeechEnd });
-    }
-
-    return () => {
-      cancel();
-      setContextState('isInLesson', false);
-    };
-  }, [block.block_id, textToSpeak, isSupported, speak, cancel, setContextState, trackActivity, block.hasChat]);
+    // Do not auto-speak narration here; speech is handled centrally by avatar
+    setContextState('isInLesson', true);
+    trackActivity();
+    return () => setContextState('isInLesson', false);
+  }, [block.block_id, textToSpeak, setContextState, trackActivity]);
 
   const handleManualContinue = () => {
-    cancel();
     trackActivity();
     setContextState('isInLesson', false);
     if (block.next_block) {
@@ -47,12 +32,7 @@ const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText, userId, l
 
   return (
     <div className="text-center animate-[fadeIn_0.5s_ease-in-out]">
-      {!block.hasChat && isSpeaking && (
-        <div className="flex justify-center items-center gap-2 text-cyan-400 mb-4 animate-pulse">
-          <Volume2 />
-          <span>Speaking...</span>
-        </div>
-      )}
+      {/* no per-block speaking indicator; avatar handles global speech */}
 
       {!block.hasChat && <p className="text-lg md:text-xl text-gray-300 my-8">{block.content}</p>}
 
@@ -96,7 +76,7 @@ const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText, userId, l
           className="inline-flex items-center gap-3 px-6 py-3 mt-10 font-semibold text-white bg-cyan-600/80 rounded-full hover:bg-cyan-500 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
         >
           Continue
-          {isSpeaking && <SkipForward />} {/* Show skip icon while speaking */}
+          <SkipForward />
         </button>
       ) : (
         <Link
@@ -107,11 +87,7 @@ const NarrationBlock = ({ block, userTags, onNavigate, getDynamicText, userId, l
         </Link>
       )}
 
-      {!isSupported && (
-        <p className="text-xs text-gray-500 mt-6 italic">
-          Auto-narration is not supported by your browser. Please use the "Continue" button.
-        </p>
-      )}
+      
     </div>
   );
 };
