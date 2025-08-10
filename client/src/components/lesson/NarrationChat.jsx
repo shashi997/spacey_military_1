@@ -6,6 +6,7 @@ import { sendNarrationChatMessages } from '../../api/narration_api';
 import { Send, User, Bot, ArrowDown, Mic, MicOff } from 'lucide-react';
 // Per-chat TTS removed; centralized avatar handles speech
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
+import { useCoordinatedSpeechSynthesis } from '../../hooks/useSpeechCoordination';
 
 const NarrationChat = ({ userId, lessonId, blockId, block }) => {
     const [messages, setMessages] = useState([]);
@@ -15,7 +16,7 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
-    // Remove per-chat TTS; main avatar handles all speech
+    const { speak, cancel } = useCoordinatedSpeechSynthesis('avatar');
 
     const {
         isListening,
@@ -118,7 +119,8 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
             if (responseData && responseData.aiResponse) {
                 const aiResponse = responseData.aiResponse;
 
-                // Do not speak here; rely on centralized avatar speech
+                // Centralized avatar voice for Spacey's response
+                speak(aiResponse);
 
                 await addDoc(messagesRef, {
                     text: aiResponse,
@@ -149,7 +151,7 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
             setIsLoading(false);
             scrollToBottom();
         }
-    }, [userId, lessonId, blockId, block, messages, scrollToBottom, newMessage, isListening, stopListening]);
+    }, [userId, lessonId, blockId, block, messages, scrollToBottom, newMessage, isListening, stopListening, speak]);
 
     const handleMicClick = () => {
         if (isListening) {
@@ -158,6 +160,8 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
             startListening();
         }
     };
+
+    useEffect(() => () => cancel(), [cancel]);
 
     return (
         <div className="flex flex-col h-full border border-gray-300 rounded-md overflow-hidden">
