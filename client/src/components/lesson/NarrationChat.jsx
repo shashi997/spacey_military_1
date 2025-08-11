@@ -4,8 +4,9 @@ import { db } from '../../firebaseConfig';
 import { collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { sendNarrationChatMessages } from '../../api/narration_api';
 import { Send, User, Bot, ArrowDown, Mic, MicOff } from 'lucide-react';
-import { useCoordinatedSpeechSynthesis } from '../../hooks/useSpeechCoordination';
+// Per-chat TTS removed; centralized avatar handles speech
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
+import { useCoordinatedSpeechSynthesis } from '../../hooks/useSpeechCoordination';
 
 const NarrationChat = ({ userId, lessonId, blockId, block }) => {
     const [messages, setMessages] = useState([]);
@@ -15,7 +16,7 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
-    const { speak } = useCoordinatedSpeechSynthesis('narration-chat');
+    const { speak, cancel } = useCoordinatedSpeechSynthesis('avatar');
 
     const {
         isListening,
@@ -118,7 +119,7 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
             if (responseData && responseData.aiResponse) {
                 const aiResponse = responseData.aiResponse;
 
-                // Speak the AI response
+                // Centralized avatar voice for Spacey's response
                 speak(aiResponse);
 
                 await addDoc(messagesRef, {
@@ -159,6 +160,8 @@ const NarrationChat = ({ userId, lessonId, blockId, block }) => {
             startListening();
         }
     };
+
+    useEffect(() => () => cancel(), [cancel]);
 
     return (
         <div className="flex flex-col h-full border border-gray-300 rounded-md overflow-hidden">

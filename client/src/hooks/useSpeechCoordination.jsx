@@ -1,4 +1,4 @@
-import { synthesizeSpeech, cleanup } from '../api/voice_api';
+import { synthesizeSpeech, cleanup, isElevenLabsEnabled, speakWithWebSpeech, cancelWebSpeech } from '../api/voice_api';
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 
 // Context for global speech coordination
@@ -185,6 +185,8 @@ export const useCoordinatedSpeechSynthesis = (sourceId) => {
       cleanup(audioUrlRef.current);
       audioUrlRef.current = null;
     }
+    // Always cancel any Web Speech in case it was used
+    cancelWebSpeech();
   }, []);
 
   // Cleanup on unmount
@@ -229,49 +231,76 @@ export const useCoordinatedSpeechSynthesis = (sourceId) => {
 
     try {
       setIsLoading(true);
-
       cleanupAudio();
 
-      const audioUrl = await synthesizeSpeech(textToSpeak);
-      audioUrlRef.current = audioUrl;
+      if (isElevenLabsEnabled()) {
+        const audioUrl = await synthesizeSpeech(textToSpeak);
+        audioUrlRef.current = audioUrl;
 
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
 
-      audio.oncanplaythrough = () => {
+        audio.oncanplaythrough = () => {
+          setIsLoading(false);
+          setIsSpeaking(true);
+          registerSpeechSource(sourceId);
+          if (onStart) onStart();
+
+          const tryPlay = () => {
+            const playPromise = audio.play();
+            if (playPromise && typeof playPromise.then === 'function') {
+              playPromise.catch(() => {
+                console.warn('Audio autoplay was blocked; resuming on first user interaction.');
+                const resume = () => {
+                  document.removeEventListener('click', resume, true);
+                  document.removeEventListener('keydown', resume, true);
+                  audio.play().catch(console.error);
+                };
+                document.addEventListener('click', resume, true);
+                document.addEventListener('keydown', resume, true);
+              });
+            }
+          };
+          tryPlay();
+        };
+
+        audio.onended = () => {
+          setIsSpeaking(false);
+          unregisterSpeechSource(sourceId);
+          cleanupAudio();
+          if (onEnd) onEnd();
+        };
+
+        audio.onerror = (error) => {
+          console.error('Audio playback error:', error);
+          setIsLoading(false);
+          setIsSpeaking(false);
+          unregisterSpeechSource(sourceId);
+          cleanupAudio();
+          if (onEnd) onEnd();
+        };
+      } else {
+        // Web Speech path
         setIsLoading(false);
         setIsSpeaking(true);
         registerSpeechSource(sourceId);
-        if (onStart) onStart();
-        audio.play().catch(console.error);
-      };
+        const cancelFn = speakWithWebSpeech(textToSpeak, {
+          onStart,
+          onEnd: () => {
+            setIsSpeaking(false);
+            unregisterSpeechSource(sourceId);
+            if (onEnd) onEnd();
+          }
+        });
 
-      audio.onended = () => {
-        setIsSpeaking(false);
-        unregisterSpeechSource(sourceId);
-        cleanupAudio();
-        if (onEnd) onEnd();
-      };
-
-      audio.onerror = (error) => {
-        console.error('Audio playback error:', error);
-        setIsLoading(false);
-        setIsSpeaking(false);
-        unregisterSpeechSource(sourceId);
-        cleanupAudio();
-        if (onEnd) onEnd();
-      };
+        // Store a dummy audioRef to allow canceling
+        audioRef.current = { pause: cancelFn };
+      }
     } catch (error) {
       console.error('Speech synthesis error:', error);
       setIsLoading(false);
       setIsSpeaking(false);
       if (onEnd) onEnd();
-
-      if (window.speechSynthesis) {
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.onend = onEnd;
-        window.speechSynthesis.speak(utterance);
-      }
     }
     // const synth = window.speechSynthesis;
 

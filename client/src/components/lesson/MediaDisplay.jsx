@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import LessonImage from './LessonImage';
 import Lesson3DModel from './Lesson3DModel';
-import useAudio from '../../hooks/useAudio';
 
 const MediaDisplay = ({ media, initialIndex = 0, onMediaChange }) => { // Added initialIndex and onMediaChange
   const [currentMediaIndex, setCurrentMediaIndex] = useState(initialIndex);
@@ -27,14 +26,12 @@ const MediaDisplay = ({ media, initialIndex = 0, onMediaChange }) => { // Added 
     }
 
     if (media.video) mediaArray.push({ type: 'video', src: media.video });
-    if (media.audio) mediaArray.push({ type: 'audio', src: media.audio });
+    // Intentionally ignore media.audio to avoid parallel audio playback
     return mediaArray;
   };
 
   const mediaArray = getMediaArray();
   const currentMedia = mediaArray[currentMediaIndex];
-
-  useAudio(currentMedia?.type === 'audio' ? currentMedia.src : null);
 
 
   const nextMedia = () => {
@@ -48,7 +45,7 @@ const MediaDisplay = ({ media, initialIndex = 0, onMediaChange }) => { // Added 
   };
 
   const renderMedia = () => {
-    if (!currentMedia || currentMedia.type === 'audio') return null;
+    if (!currentMedia) return null;
     switch (currentMedia.type) {
       case '3d':
         return <Lesson3DModel modelPath={currentMedia.src} />;
@@ -68,7 +65,7 @@ const MediaDisplay = ({ media, initialIndex = 0, onMediaChange }) => { // Added 
     }
   };
 
-  const hasMultipleVisualMedia = mediaArray.filter(m => m.type !== "audio").length > 1;
+  const hasMultipleVisualMedia = mediaArray.length > 1;
 
   return (
     <div className="mb-8 animate-fade-in">

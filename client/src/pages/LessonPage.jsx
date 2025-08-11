@@ -53,7 +53,6 @@ import MissionPreviewDemo from '../components/interactive/MissionPreviewDemo';
 // import ChatPanel from '../components/chat/ChatPanel';
 
 // Hooks
-import useAudio from "../hooks/useAudio";
 import { useAuth } from "../hooks/useAuth";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 import { useConversationManager } from "../hooks/useConversationManager";
@@ -328,10 +327,7 @@ const LessonPage = () => {
     };
   }, [lesson, currentBlockId]);
 
-  // --- NEW: Use the audio hook to play sound from the current block ---
-  const audioSrc = useMemo(() => currentBlock?.media?.audio, [currentBlock]);
-  useAudio(audioSrc);
-  // --- END OF NEW CODE ---
+  // Disable per-block audio auto-play to avoid overlapping narration
 
   const handleNavigate = useCallback(
     (nextBlockId) => {

@@ -204,9 +204,6 @@ export const ConversationManagerProvider = ({ children }) => {
       if (responseType === 'emotion-aware') lastEmotionResponseTime.current = Date.now();
       else if (responseType === 'idle') lastIdleResponseTime.current = Date.now();
 
-      // =================================================================================
-      // THE FIX: Use the correctly named `speakAsAvatar` function.
-      // =================================================================================
       speakAsAvatar(textToSpeak, {
         onEnd: () => {
           if (pendingResponses.length > 0) {
