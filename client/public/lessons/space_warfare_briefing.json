@@ -146,9 +146,15 @@
             "block_id": "DebrisCloud_Interactive",
             "type": "interactive_demo",
             "demo_component": "DebrisCloudDemo", 
-            "next_block": "MissionPreview"
+            "next_block": "MissionPreview_Interactive"
         },
 
+        {
+            "block_id": "MissionPreview_Interactive",
+            "type": "interactive_demo",
+            "demo_component": "MissionPreviewDemo", 
+            "next_block": "MissionPreview"
+        },
         {
             "block_id": "MissionPreview",
             "type": "choice",
@@ -186,6 +192,7 @@
             "llm_instruction": "As Spacey, set up the next mission scenario. Clearly outline the orbital traffic crisis and the student's role as Coalition SatOps Commander. Present the initial choices for advising leadership, emphasizing the need for wise decisions.",
             "next_block": null
         },
+
 
         {
             "block_id": "Briefing_End",

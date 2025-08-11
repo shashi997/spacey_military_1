@@ -1,46 +1,61 @@
 import React, { useState } from 'react';
-import { MessageSquare, DollarSign, ShieldOff, Target, ChevronDown, Check } from 'lucide-react';
+import { MessageSquare, DollarSign, ShieldOff, Target, ChevronDown, Check, Loader } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import { useConversationManager } from '../../hooks/useConversationManager';
 
-// --- Data for the ROE Ladder steps ---
+// --- Data for the ROE Ladder steps with AI prompts ---
 const LADDER_STEPS = [
   {
     id: 'diplomatic',
     name: 'Diplomatic Pressure',
     icon: <MessageSquare size={32} className="text-blue-400" />,
     description: 'Initial action: A formal warning is sent via diplomatic channels, demanding the hostile platform cease its approach.',
-    outcome: 'Outcome: The warning is ignored. The platform continues its maneuver.'
+    ai_prompt: 'As Spacey, the AI mission specialist, describe the likely outcome of applying diplomatic pressure against a nation maneuvering a hostile platform near an allied satellite. The warning is ignored. Keep it concise.'
   },
   {
     id: 'economic',
     name: 'Economic Sanctions',
     icon: <DollarSign size={32} className="text-yellow-400" />,
     description: 'Next step: Targeted economic sanctions are announced against the offending nation\'s space program.',
-    outcome: 'Outcome: No immediate effect. The platform holds its position, increasing the threat.'
+    ai_prompt: 'As Spacey, describe the outcome of applying economic sanctions. The action has no immediate effect on the hostile platform, which holds its position.'
   },
   {
     id: 'cyber',
     name: 'Cyber Countermeasures',
     icon: <ShieldOff size={32} className="text-green-400" />,
     description: 'Escalation: A non-destructive cyber operation is authorized to temporarily disable the platform\'s communication systems.',
-    outcome: 'Outcome: The cyber-attack is successful, but the platform\'s automated systems remain active.'
+    ai_prompt: 'As Spacey, report on the outcome of the cyber-attack. The operation is successful in disabling communications, but the platform\'s automated systems remain active.'
   },
   {
     id: 'kinetic',
     name: 'Kinetic Strike',
     icon: <Target size={32} className="text-red-400" />,
     description: 'Final option: As a last resort, leadership authorizes a kinetic strike to neutralize the threat before it can harm the allied asset.',
-    outcome: 'Outcome: The threat is eliminated, but this action carries significant geopolitical consequences.'
+    ai_prompt: 'As Spacey, confirm the outcome of the kinetic strike. The threat is eliminated, but emphasize the significant geopolitical consequences of this action.'
   }
 ];
 
 // --- The Main Component ---
 const RoeLadderDemo = () => {
-  const [currentStepIndex, setCurrentStepIndex] = useState(-1); // -1 means nothing is selected yet
+  const [currentStepIndex, setCurrentStepIndex] = useState(-1);
+  const [aiOutcomes, setAiOutcomes] = useState({});
 
-  const handleSelectStep = (index) => {
-    // Allow user to only select the next step in the sequence
-    if (index === currentStepIndex + 1) {
-      setCurrentStepIndex(index);
+  const { currentUser } = useAuth();
+  const { handleUserChat, isProcessing } = useConversationManager();
+
+  const handleSelectStep = async (index) => {
+    // Prevent selecting out of order or while AI is processing
+    if (index > currentStepIndex + 1 || isProcessing) return;
+
+    setCurrentStepIndex(index);
+    const step = LADDER_STEPS[index];
+
+    // Only call the AI if we don't already have a response for this step
+    if (!aiOutcomes[step.id]) {
+      const response = await handleUserChat(step.ai_prompt, currentUser);
+      if (response?.message) {
+        setAiOutcomes(prev => ({ ...prev, [step.id]: response.message }));
+      }
     }
   };
 
@@ -57,10 +72,10 @@ const RoeLadderDemo = () => {
           <React.Fragment key={step.id}>
             <button
               onClick={() => handleSelectStep(index)}
-              disabled={index > currentStepIndex + 1}
+              disabled={index > currentStepIndex + 1 || isProcessing}
               className={`w-full p-4 flex items-center gap-4 rounded-lg border-2 transition-all duration-300 text-left ${
                 currentStepIndex >= index ? 'bg-white/10 border-cyan-400' : 'bg-white/5 border-transparent'
-              } ${index === currentStepIndex + 1 ? 'cursor-pointer hover:bg-white/10 animate-pulse' : 'cursor-not-allowed'}`}
+              } ${index === currentStepIndex + 1 && !isProcessing ? 'cursor-pointer hover:bg-white/10 animate-pulse' : 'cursor-not-allowed'}`}
             >
               <div className={`p-3 rounded-full ${currentStepIndex >= index ? 'bg-cyan-500/20' : 'bg-gray-700'}`}>
                 {step.icon}
@@ -72,8 +87,17 @@ const RoeLadderDemo = () => {
             {/* Outcome Display */}
             {currentStepIndex >= index && (
               <div className="pl-8 pr-4 py-4 text-gray-300 animate-fade-in">
-                <p className="text-sm mb-2">{step.description}</p>
-                <p className="text-sm font-semibold text-yellow-300">{step.outcome}</p>
+                <p className="text-base mb-2">{step.description}</p>
+                <div className="text-base font-semibold text-yellow-300">
+                  {isProcessing && currentStepIndex === index ? (
+                    <div className="flex items-center gap-2">
+                      <Loader className="animate-spin" size={16}/>
+                      <span>Analyzing outcome...</span>
+                    </div>
+                  ) : (
+                    <p><strong>Outcome:</strong> {aiOutcomes[step.id]}</p>
+                  )}
+                </div>
               </div>
             )}
 

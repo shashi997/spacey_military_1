@@ -28,7 +28,8 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "tone": "^15.1.22"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

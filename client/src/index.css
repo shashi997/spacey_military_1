@@ -22,3 +22,37 @@
 .animate-ping-slow {
   animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
+
+@keyframes move-satellite-1 {
+  from { top: 10%; left: 85%; transform: translate(-50%, -50%) rotate(225deg); }
+  to { top: 45%; left: 55%; transform: translate(-50%, -50%) rotate(225deg); }
+}
+.animate-move-satellite-1 {
+  animation: move-satellite-1 4s linear infinite;
+}
+
+@keyframes move-satellite-2 {
+  from { top: 85%; left: 10%; transform: translate(-50%, -50%) rotate(45deg); }
+  to { top: 55%; left: 45%; transform: translate(-50%, -50%) rotate(45deg); }
+}
+.animate-move-satellite-2 {
+  animation: move-satellite-2 4s linear infinite;
+}
+
+
+
+@keyframes slow-zoom {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
+}
+.animate-slow-zoom {
+  animation: slow-zoom 20s linear infinite alternate;
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-flash {
+  animation: flash 1.5s infinite;
+}
