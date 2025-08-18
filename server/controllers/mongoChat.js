@@ -2,7 +2,7 @@ const { MongoClient } = require("mongodb");
 const { aiProviderManager } = require("./aiProviders");
 
 // MongoDB connection URI from environment variable
-const uri = "mongodb+srv://spacey:YoloV8@clusterspacey.dblfswi.mongodb.net/?retryWrites=true&w=majority&appName=ClusterSpacey";
+const uri = "mongodb+srv://spacey:<password>@clusterspacey.dblfswi.mongodb.net/?retryWrites=true&w=majority&appName=ClusterSpacey";
 const MONGO_URI = uri;
 
 // Create a single MongoClient instance (reuse across calls)
